@@ -13,6 +13,7 @@
       padding: 0;
       box-sizing: border-box;
     }
+
     body {
       min-height: 100vh;
       background: linear-gradient(to bottom right, #ffd6e7, #ffe8f0);
@@ -21,16 +22,19 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
       position: relative;
       flex-direction: column;
+      padding: 20px;
+      text-align: center;
     }
 
     /* Gift Box */
     #gift {
       width: 180px;
       height: 180px;
-      background: url('giftbox.png') no-repeat center/cover;
+      background: url('giftbox.png') no-repeat center/contain;
       cursor: pointer;
       animation: float 2s ease-in-out infinite alternate;
       transition: transform 0.5s;
@@ -41,17 +45,31 @@
       100% { transform: translateY(-20px); }
     }
 
+    .tap-to-open {
+      font-size: 1.2em;
+      color: #555;
+      margin-top: 15px;
+      animation: blink 1.5s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
     /* Celebration Section (Initially Hidden) */
     #celebration {
       display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      margin-top: 20px;
     }
 
     .gif-container {
-      width: 200px;
-      height: 200px;
+      width: 80%;
+      max-width: 250px;
+      height: 250px;
       background: url('WhatsApp Image 2025-04-28 at 15.51.57_82002896.jpg') no-repeat center/cover;
       border-radius: 20px;
       margin-bottom: 20px;
@@ -59,7 +77,7 @@
     }
 
     h1 {
-      font-size: 2.5em;
+      font-size: 2em;
       margin-bottom: 20px;
       color: #ff66b2;
       text-shadow: 2px 2px 10px rgba(255, 105, 180, 0.8);
@@ -68,7 +86,7 @@
     .card {
       background: #fff0f5;
       border-radius: 20px;
-      padding: 30px;
+      padding: 20px;
       text-align: center;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
       color: #444;
@@ -84,7 +102,7 @@
     }
 
     #typed {
-      font-size: 1.5em;
+      font-size: 1.2em;
       min-height: 60px;
       margin-bottom: 20px;
     }
@@ -98,8 +116,8 @@
     /* Balloons */
     .balloon {
       position: absolute;
-      width: 40px;
-      height: 60px;
+      width: 30px;
+      height: 45px;
       background: radial-gradient(circle, #ff8ac6 0%, #ff2e63 100%);
       border-radius: 50% 50% 50% 50%;
       opacity: 0.8;
@@ -110,6 +128,16 @@
       0% {bottom: -100px; transform: translateX(0);}
       100% {bottom: 110vh; transform: translateX(100px);}
     }
+
+    /* Responsive */
+    @media (max-width: 500px) {
+      h1 {
+        font-size: 1.7em;
+      }
+      #typed {
+        font-size: 1em;
+      }
+    }
   </style>
 </head>
 
@@ -117,104 +145,115 @@
 
 <!-- Gift Box First -->
 <div id="gift" onclick="openGift()"></div>
+<div class="tap-to-open">🎁 Tap the gift to open! 🎁</div>
 
 <!-- Hidden Birthday Celebration -->
-<div id="celebration" onclick="startConfetti()">
+<div id="celebration">
   <div class="gif-container"></div>
   <h1>Happy Birthday, Shristi! 🎉</h1>
   <div class="card">
     <div id="typed"></div>
-    <div class="tap-text">(Tap here for the surprise!)</div>
+    <div class="tap-text">(Tap anywhere to continue ➡️)</div>
   </div>
 </div>
 
 <!-- Background Music (hidden) -->
-<audio id="birthdayMusic" src="jaan hai meri.mp3"></audio>
+<audio id="birthdayMusic" src="jaan hai meri.mp3" loop></audio>
 
 <script>
-  // Gift Opening Animation + Reveal
-  function openGift() {
-    const gift = document.getElementById('gift');
-    gift.style.animation = 'none'; // Stop floating
-    gift.style.transform = 'scale(1.2) rotate(20deg)';
+let opened = false;
+
+function openGift() {
+  if (opened) return; // prevent multiple taps
+  opened = true;
+
+  const gift = document.getElementById('gift');
+  const tapText = document.querySelector('.tap-to-open');
+  gift.style.animation = 'none';
+  gift.style.transform = 'scale(1.2) rotate(20deg)';
+  
+  setTimeout(() => {
+    gift.style.transform = 'scale(0)';
+    tapText.style.display = 'none';
+    
     setTimeout(() => {
-      gift.style.transform = 'scale(0)'; // Shrink and hide
-      setTimeout(() => {
-        gift.style.display = 'none';
-        document.getElementById('celebration').style.display = 'flex';
-        startTyping();
-        playMusic();
-        startConfetti();
-        
-        // ⭐ Add click to go to gallery after celebration shown
-        document.getElementById('celebration').addEventListener('click', () => {
-          window.location.href = "gallery.html"; // Redirect to gallery.html
-        });
-  
-      }, 500);
+      gift.style.display = 'none';
+      document.getElementById('celebration').style.display = 'flex';
+      startTyping();
+      playMusic();
+      startConfetti();
+      
+      // Redirect to gallery after tapping anywhere after celebration shows
+      document.getElementById('celebration').addEventListener('click', () => {
+        window.location.href = "gallery.html"; 
+      });
+      
     }, 500);
-  }
+  }, 500);
+}
+
+// Typed.js typing effect
+function startTyping() {
+  new Typed('#typed', {
+    strings: [
+      "Happy birthday to you Shristi! Bhagwan kare tum hamesha happy and healthy raho aur apne har sapne ko achieve karo. Tum woh ho jisne meri life ko best banaya hai.",
+      "May your birthday be the best day for you! Always thank you for being the best part of my life, and remember I'm always with you! ☺️"
+    ],
+    typeSpeed: 50,
+    backSpeed: 30,
+    backDelay: 2000,
+    loop: true
+  });
+}
+
+// Play background music
+function playMusic() {
+  const music = document.getElementById('birthdayMusic');
+  music.volume = 0.5;
+  music.play().catch(err => console.log('Autoplay blocked')); // Prevent crash if autoplay blocked
+}
+
+// Confetti and Balloons
+function startConfetti() {
+  launchConfetti();
+  createBalloons();
+}
+
+function launchConfetti() {
+  const duration = 4 * 2000;
+  const end = Date.now() + duration;
   
-  // Typed.js typing effect
-  function startTyping() {
-    new Typed('#typed', {
-      strings: [
-        "Happy birthday to you sristi. Bhagwan kre tum hamesa happy and healthy rho and apne har sapne ko achive kro aur tumhari har khwaish puri ho. Tum wo ho yrr jisne meri life ko best se best bnaya hai.",
-        " May your birthday will be the best day for you and always thanku for being the best part of my life and don't forget I am always with u ☺️"
-      ],
-      typeSpeed: 50,
-      backSpeed: 30,
-      backDelay: 2000,
-      loop: true
+  (function frame() {
+    confetti({
+      particleCount: 5,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0 }
     });
-  }
-  
-  // Play music
-  function playMusic() {
-    const music = document.getElementById('birthdayMusic');
-    music.play();
-  }
-  
-  // Confetti and Balloons
-  function startConfetti() {
-    launchConfetti();
-    createBalloons();
-  }
-  
-  function launchConfetti() {
-    const duration = 4 * 2000;
-    const end = Date.now() + duration;
-    (function frame() {
-      confetti({
-        particleCount: 5,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0 }
-      });
-      confetti({
-        particleCount: 5,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1 }
-      });
-      if (Date.now() < end) {
-        requestAnimationFrame(frame);
-      }
-    })();
-  }
-  
-  function createBalloons() {
-    for (let i = 0; i < 15; i++) {
-      const balloon = document.createElement('div');
-      balloon.className = 'balloon';
-      balloon.style.left = Math.random() * 100 + 'vw';
-      balloon.style.animationDuration = (5 + Math.random() * 5) + 's';
-      document.body.appendChild(balloon);
-      setTimeout(() => balloon.remove(), 10000);
+    confetti({
+      particleCount: 5,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1 }
+    });
+    
+    if (Date.now() < end) {
+      requestAnimationFrame(frame);
     }
+  })();
+}
+
+function createBalloons() {
+  for (let i = 0; i < 15; i++) {
+    const balloon = document.createElement('div');
+    balloon.className = 'balloon';
+    balloon.style.left = Math.random() * 100 + 'vw';
+    balloon.style.animationDuration = (5 + Math.random() * 5) + 's';
+    document.body.appendChild(balloon);
+    setTimeout(() => balloon.remove(), 10000);
   }
-  </script>
-  
+}
+</script>
 
 </body>
 </html>
