@@ -3,25 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <title>Gallery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
   <style>
     body {
       margin: 0;
-      background: #fff;
+      background: linear-gradient(to bottom, #fff0f5, #ffe8f0);
       overflow: hidden;
       height: 100vh;
       perspective: 1200px;
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-direction: column;
       font-family: 'Baloo 2', cursive;
-      background: linear-gradient(to bottom, #fff0f5, #ffe8f0);
       position: relative;
       cursor: pointer; /* Hint that user can interact */
     }
 
     .carousel {
-      width: 300px;
-      height: 300px;
+      width: 80vw;
+      height: 80vw;
+      max-width: 320px;
+      max-height: 320px;
       position: relative;
       transform-style: preserve-3d;
       transition: transform 1s;
@@ -29,11 +33,12 @@
 
     .carousel img {
       position: absolute;
-      width: 200px;
-      height: 250px;
+      width: 70%;
+      height: auto;
+      max-height: 250px;
       left: 50%;
       top: 50%;
-      transform: translate(-50%, -50%) rotateY(calc(var(--i) * 45deg)) translateZ(400px);
+      transform: translate(-50%, -50%) rotateY(calc(var(--i) * 45deg)) translateZ(300px);
       border-radius: 20px;
       object-fit: cover;
       -webkit-box-reflect: below 0px linear-gradient(transparent, transparent, rgba(0,0,0,0.2));
@@ -41,16 +46,14 @@
     }
 
     .carousel img:hover {
-      transform: scale(1.05) translate(-50%, -50%) rotateY(calc(var(--i) * 45deg)) translateZ(400px);
+      transform: scale(1.05) translate(-50%, -50%) rotateY(calc(var(--i) * 45deg)) translateZ(300px);
     }
 
     .center-text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 2.5em;
+      font-size: 2rem;
+      text-align: center;
       color: #ff66b2;
+      margin-bottom: 20px;
       text-shadow: 2px 2px 10px rgba(255, 105, 180, 0.8);
       animation: pulse 2s infinite;
       pointer-events: none;
@@ -58,9 +61,9 @@
     }
 
     @keyframes pulse {
-      0% { transform: translate(-50%, -50%) scale(1); }
-      50% { transform: translate(-50%, -50%) scale(1.1); }
-      100% { transform: translate(-50%, -50%) scale(1); }
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
     }
 
     audio {
@@ -89,6 +92,24 @@
         opacity: 0;
       }
     }
+
+    /* Mobile adjustments */
+    @media (max-width: 600px) {
+      .center-text {
+        font-size: 1.5rem;
+        margin-top: 10px;
+      }
+
+      .carousel {
+        width: 85vw;
+        height: 85vw;
+      }
+
+      .carousel img {
+        width: 65%;
+        max-height: 220px;
+      }
+    }
   </style>
 </head>
 
@@ -105,7 +126,7 @@
   <img src="6.jpg" style="--i:5;">
 </div>
 
-<audio id="bgMusic" src="bg_song_tune.mp3" loop></audio>
+<audio id="bgMusic" src="jaan hai meri.mp3" loop></audio>
 
 <script>
 // Carousel Auto Rotate
@@ -115,7 +136,6 @@ let isDragging = false;
 let startX = 0;
 let currentX = 0;
 
-// Automatic rotation (right to left)
 function autoRotate() {
   if (!isDragging) {
     rotateY -= 0.2;
@@ -136,12 +156,8 @@ carousel.addEventListener('mousemove', (e) => {
   rotateY = currentX - startX;
   carousel.style.transform = `rotateY(${rotateY}deg)`;
 });
-carousel.addEventListener('mouseup', () => {
-  isDragging = false;
-});
-carousel.addEventListener('mouseleave', () => {
-  isDragging = false;
-});
+carousel.addEventListener('mouseup', () => isDragging = false);
+carousel.addEventListener('mouseleave', () => isDragging = false);
 
 // Touch Drag Rotate (for mobile)
 carousel.addEventListener('touchstart', (e) => {
@@ -154,9 +170,7 @@ carousel.addEventListener('touchmove', (e) => {
   rotateY = currentX - startX;
   carousel.style.transform = `rotateY(${rotateY}deg)`;
 });
-carousel.addEventListener('touchend', () => {
-  isDragging = false;
-});
+carousel.addEventListener('touchend', () => isDragging = false);
 
 // Cherry Blossom Confetti
 function createConfetti() {
@@ -170,14 +184,13 @@ function createConfetti() {
     confetti.remove();
   }, 10000);
 }
-
 setInterval(createConfetti, 200);
 
-// Play background music after user click
+// Play music on first click
 document.body.addEventListener('click', () => {
   const music = document.getElementById('bgMusic');
   if (music.paused) {
-    music.volume = 0.5; // start softer
+    music.volume = 0.5;
     music.play();
   }
 });
